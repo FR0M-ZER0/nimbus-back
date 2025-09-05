@@ -1,0 +1,9 @@
+[submodule "Api"]
+	path = Api
+	url = git@https://github.com/FR0M-ZER0/nimbus-api.git
+[submodule "DataGetter"]
+	path = DataGetter
+	url = git@https://github.com/FR0M-ZER0/nimbus-data-getter.git
+[submodule "DataProcessing"]
+	path = DataProcessing
+	url = git@https://github.com/FR0M-ZER0/nimbus-data-processing.git
