@@ -1,0 +1,73 @@
+name: CI & Standards Validation
+
+on:
+  push:
+    branches: [ "release" ]
+  pull_request:
+    types: [opened, edited, synchronize]
+    branches: [ "release" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+
+  validate-pr-title:
+    name: 'Validate PR Title'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            test
+            build
+            chore
+          subjectPattern: '^[A-Z]+-[0-9]+ - .+'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 2: Validação do Nome da Branch
+  validate-branch-name:
+    name: 'Validate Branch Name'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint branch name
+        uses: lekterable/branchlint-action@2.1.0
+        with:
+          allowed: |
+            dev/^[A-Z]+-[0-9]+-[a-z0-9-]+$/
+          errorMessage: "O nome da branch não segue o padrão 'dev/TASK-ID-descricao-em-kebab-case'. Ex: dev/NIMB-42-ajustar-ci"
+
+
+  build-and-test:
+    name: 'Build and Test'
+    runs-on: ubuntu-latest
+    needs: [validate-pr-title, validate-branch-name]
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+      - name: Publish Test Report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Results
+          path: '**/junit-report.xml' 
+          reporter: 'java-junit'
