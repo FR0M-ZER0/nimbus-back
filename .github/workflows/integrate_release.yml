@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Job 2: Validação do Nome da Branch
+  ## teste
   validate-branch-name:
     name: 'Validate Branch Name'
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
         uses: lekterable/branchlint-action@2.1.0
         with:
           allowed: |
-            feat/^[A-Z]+-[0-9]+-[a-z0-9-]+$/
+            ^feat/[A-Z]+-[0-9]+-[a-z0-9-]+$
           errorMessage: "O nome da branch não segue o padrão 'dev/TASK-ID-descricao-em-kebab-case'. Ex: dev/NIMB-42-ajustar-ci"
 
 
